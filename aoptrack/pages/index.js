@@ -2,9 +2,10 @@ import Layout from "@/components/Layout";
 import AOPdat from "@/AOPdat";
 import ChartArea from "@/components/ChartArea";
 import ChartBar from "@/components/ChartBar";
+import {useState} from "react"
 
 export default function Home() {
-  console.log(AOPdat);
+ const [days, setDays]= useState(100)
 
   const kpi = [];
   AOPdat?.forEach((data) => {
@@ -33,13 +34,22 @@ export default function Home() {
   const IntegrationKpi = [];
   kpi.forEach((site) => {
     const date = site.integration;
+    const instdate= site.installation;
     let foundDate = IntegrationKpi.find((kpi) => kpi.date === date);
-    if (foundDate) {
-      foundDate.index += 1;
-    } else {
+    let instDate= IntegrationKpi.find((kpi)=>kpi.date === instdate)
+    if (foundDate && instDate) {
+      foundDate.integration += 1;
+      instDate.installation +=1
+    }else if(instDate && !foundDate){
+    instDate.installation +=1
+    }else if(!instDate && foundDate){
+    foundDate.integration += 1;
+    }
+    else {
       IntegrationKpi.push({
         date: date,
-        index: 1,
+        integration: 1,
+        installation:1
       });
     }
   });
@@ -69,12 +79,14 @@ export default function Home() {
   };
 
   sbcPerformance(kpi);
+  
+  console.log(IntegrationKpi)
 
   return (
     <Layout>
       <h1>AOP Online Tracker </h1>
-
-      <ChartArea title="integration KPI" dataChart={IntegrationKpi} />
+<input type="number" value={days} onChange={(e)=> setDays(e.target.value)}/>
+      <ChartArea title={`integration KPI last ${days} days`} dataChart={IntegrationKpi} days={days} />
       <ChartBar title="SBC Performance" data={sbcKpi} />
     </Layout>
   );
